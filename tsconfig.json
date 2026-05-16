@@ -1,0 +1,107 @@
+import { NextRequest, NextResponse } from 'next/server'
+
+export const runtime = 'edge'
+
+const NEWS_FEED = [
+  {
+    id: '1', tag: 'MACRO', region: '🇺🇸',
+    headline: 'Fed signals potential rate cut as PCE inflation cools to 2.6%',
+    summary: 'Federal Reserve officials have signaled a possible rate reduction in Q3 2024 as core PCE inflation continues its downward trajectory, boosting risk assets globally.',
+    sentiment: 'bullish', time: '3m ago', impact: 'HIGH',
+    tickers: ['SPY', 'QQQ', 'TLT'], source: 'Reuters'
+  },
+  {
+    id: '2', tag: 'EARNINGS', region: '🇮🇳',
+    headline: 'Reliance Industries Q4 profit surges 11% YoY on retail & Jio strength',
+    summary: 'RIL reported net profit of ₹21,243 Cr for Q4FY24, beating estimates by 4%. Retail segment grew 16% YoY. Analyst consensus target raised to ₹3,200.',
+    sentiment: 'bullish', time: '12m ago', impact: 'HIGH',
+    tickers: ['RELIANCE.NS'], source: 'ET Markets'
+  },
+  {
+    id: '3', tag: 'CRYPTO', region: '🌐',
+    headline: 'Bitcoin ETF inflows hit $1.8B in single week — institutional FOMO accelerating',
+    summary: 'BlackRock IBIT leads with $940M weekly inflows. Total spot Bitcoin ETF AUM crosses $58B. On-chain data shows exchange outflows near 2-year highs.',
+    sentiment: 'bullish', time: '28m ago', impact: 'HIGH',
+    tickers: ['BTC/USD', 'IBIT', 'FBTC'], source: 'CoinDesk'
+  },
+  {
+    id: '4', tag: 'GEOPOLITICAL', region: '🌍',
+    headline: 'Red Sea attacks escalate — crude oil breaks above $84/bbl',
+    summary: 'Houthi attacks disrupt 15% of global shipping lanes. Brent crude surged past $84 on supply concern. Energy stocks outperforming.',
+    sentiment: 'bearish', time: '41m ago', impact: 'MEDIUM',
+    tickers: ['CL1!', 'XOM', 'ONGC.NS'], source: 'Bloomberg'
+  },
+  {
+    id: '5', tag: 'TECH', region: '🇺🇸',
+    headline: 'NVIDIA Blackwell GPU demand exceeds $15B in pre-orders — AI boom continues',
+    summary: 'NVIDIA unveils Blackwell architecture delivering 30x AI inference improvement over H100. Cloud hyperscalers place massive orders. Street raises PT to $1,100.',
+    sentiment: 'bullish', time: '1h ago', impact: 'HIGH',
+    tickers: ['NVDA', 'AMD', 'SMCI'], source: 'CNBC'
+  },
+  {
+    id: '6', tag: 'FX', region: '🇪🇺',
+    headline: 'ECB holds rates, hints at June cut — EUR/USD tests 1.0850',
+    summary: 'European Central Bank keeps benchmark rate at 4.5% but signals June rate cut is on the table. EUR/USD rallied 0.4% on the news.',
+    sentiment: 'neutral', time: '1h 15m ago', impact: 'MEDIUM',
+    tickers: ['EUR/USD', 'FXE'], source: 'FT'
+  },
+  {
+    id: '7', tag: 'INDIA', region: '🇮🇳',
+    headline: 'RBI Monetary Policy: Rates held at 6.5%, GDP forecast raised to 7.2%',
+    summary: 'Reserve Bank of India maintains accommodative stance, raises FY25 GDP growth forecast to 7.2%. NIFTY Bank reacts positively. Rate cut expected in Aug-Sep.',
+    sentiment: 'bullish', time: '2h ago', impact: 'HIGH',
+    tickers: ['NIFTYBANK.NS', 'HDFCBANK.NS', 'SBIN.NS'], source: 'Moneycontrol'
+  },
+  {
+    id: '8', tag: 'COMMODITIES', region: '🌐',
+    headline: 'Gold hits new all-time high at $2,431 — safe haven demand surges',
+    summary: 'Gold surged to new ATH driven by central bank buying, ETF inflows, and geopolitical uncertainty. Silver up 4.2% in sympathy.',
+    sentiment: 'bullish', time: '2h 30m ago', impact: 'MEDIUM',
+    tickers: ['GOLD', 'GLD', 'SLV'], source: 'Kitco'
+  },
+  {
+    id: '9', tag: 'EARNINGS', region: '🇺🇸',
+    headline: 'Meta Q1 earnings beat: Revenue $36.5B (+27% YoY), AI investments accelerating',
+    summary: 'Meta reports strong Q1 results. Advertising revenue up 27% YoY. Company raises FY24 capex guidance to $35-40B for AI infrastructure. Stock +12% after hours.',
+    sentiment: 'bullish', time: '3h ago', impact: 'HIGH',
+    tickers: ['META', 'GOOG', 'SNAP'], source: 'WSJ'
+  },
+  {
+    id: '10', tag: 'MACRO', region: '🇨🇳',
+    headline: 'China stimulus package of $138B announced — emerging markets rally',
+    summary: 'Beijing announces targeted fiscal stimulus of 1T yuan focused on manufacturing and housing. Chinese equities up 2.8%. EM ETFs benefit broadly.',
+    sentiment: 'bullish', time: '4h ago', impact: 'HIGH',
+    tickers: ['FXI', 'EEM', 'BABA'], source: 'Reuters'
+  },
+  {
+    id: '11', tag: 'OPTIONS', region: '🇺🇸',
+    headline: 'VIX drops below 13 — options traders positioned for low volatility continuation',
+    summary: 'Fear index at 3-year lows as markets hit ATH. Options skew suggests institutional hedging demand rising. Sell premium strategies favored in this environment.',
+    sentiment: 'neutral', time: '5h ago', impact: 'MEDIUM',
+    tickers: ['VIX', 'UVXY', 'SPX'], source: 'Options Insider'
+  },
+  {
+    id: '12', tag: 'CRYPTO', region: '🌐',
+    headline: 'Ethereum ETF approval odds rise to 70% — ETH undervalued vs BTC say analysts',
+    summary: 'SEC approval likelihood for spot ETH ETF increases sharply. ETH/BTC ratio recovering from multi-year lows. DeFi TVL hits $95B.',
+    sentiment: 'bullish', time: '6h ago', impact: 'HIGH',
+    tickers: ['ETH/USD', 'SOL/USD'], source: 'The Block'
+  },
+]
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const tag = searchParams.get('tag')
+  const limit = parseInt(searchParams.get('limit') || '20')
+  const sentiment = searchParams.get('sentiment')
+
+  let news = [...NEWS_FEED]
+  if (tag && tag !== 'ALL') news = news.filter(n => n.tag === tag)
+  if (sentiment) news = news.filter(n => n.sentiment === sentiment)
+
+  return NextResponse.json({
+    news: news.slice(0, limit),
+    total: news.length,
+    updated: new Date().toISOString(),
+  })
+}

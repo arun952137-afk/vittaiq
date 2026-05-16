@@ -1,0 +1,110 @@
+# VittaIQ v2 — Deployment Guide
+
+## ✅ BUILD STATUS
+- All 21 routes compiled successfully (run twice, zero errors)
+- 8 API routes: /api/ai, /api/market, /api/news, /api/openai, /api/predictions, /api/screener, /api/signals
+- 13 pages: /, /dashboard, /auth/login, /auth/signup, /alerts, /bots, /commodities, /crypto, /forex, /options, /screener, /onboarding
+
+---
+
+## STEP 1 — GitHub Push
+
+Run these commands in your terminal (replace TOKEN with your GitHub Personal Access Token):
+
+```bash
+cd /home/claude/vittaiq
+
+# If you have a PAT:
+git remote set-url origin https://<YOUR_GITHUB_TOKEN>@github.com/arun952137-afk/vittaiq.git
+git push -u origin main
+
+# OR use GitHub Desktop / upload the folder directly at github.com/new
+```
+
+**Create PAT at:** https://github.com/settings/tokens → New token → Repo scope
+
+---
+
+## STEP 2 — Vercel Deploy
+
+**Option A — Vercel Dashboard (Recommended)**
+1. Go to https://vercel.com/new
+2. Import Git Repository → connect GitHub
+3. Select `vittaiq` repo
+4. Framework: Next.js (auto-detected)
+5. Add these Environment Variables:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL = https://xkjapruluyoyziateghv.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY = eyJhbGci...akoQk
+   OPENAI_API_KEY = sk-YOUR-KEY-HERE
+   ```
+6. Click Deploy
+
+**Option B — Vercel CLI**
+```bash
+cd /home/claude/vittaiq
+npx vercel login    # opens browser
+npx vercel --prod   # deploys
+```
+
+---
+
+## STEP 3 — Add OpenAI API Key
+
+After deployment:
+1. Vercel Dashboard → Project → Settings → Environment Variables
+2. Add: `OPENAI_API_KEY` = `sk-your-real-key`
+3. Redeploy (Settings → Deployments → Redeploy)
+
+**Get key at:** https://platform.openai.com/api-keys
+
+---
+
+## STEP 4 — Supabase Verification
+
+Your Supabase project is live at:
+- URL: https://xkjapruluyoyziateghv.supabase.co
+- Dashboard: https://supabase.com/dashboard/project/xkjapruluyoyziateghv
+
+Verify:
+1. Authentication → Providers → Email: Enabled ✓
+2. Authentication → Providers → Google: Configure with Google OAuth credentials
+3. URL Configuration → Add your Vercel URL to "Site URL" and "Redirect URLs"
+   Example: https://vittaiq.vercel.app
+
+---
+
+## APP FEATURES (v2)
+
+| Page | URL | Status |
+|------|-----|--------|
+| Landing | / | ✅ |
+| Dashboard | /dashboard | ✅ Full wall street UI |
+| AI Screener | /screener | ✅ Multi-factor scoring |
+| Options Chain | /options | ✅ Live chain + strategies |
+| Crypto | /crypto | ✅ Fear & Greed + signals |
+| Alerts | /alerts | ✅ Live news + price alerts |
+| AI Bots | /bots | ✅ 6 active bots |
+| Forex/Commodities | /forex | ✅ Live rates |
+
+## API ENDPOINTS
+
+| Endpoint | Description |
+|----------|-------------|
+| /api/openai | GPT-4o analysis (mock if no key) |
+| /api/signals | AI trading signals |
+| /api/news | Live news with sentiment |
+| /api/predictions | Price predictions 24h/7d/30d |
+| /api/screener | Multi-factor stock screener |
+| /api/ai | Claude AI fallback |
+| /api/market | Market data |
+
+---
+
+## LOCAL DEV
+
+```bash
+cd /home/claude/vittaiq
+npm run dev
+# Open http://localhost:3000
+```
